@@ -1,3 +1,8 @@
+# -*- coding: utf-8 -*-
+import sys
+reload(sys)
+sys.setdefaultencoding('utf-8')
+
 import requests
 from bs4 import BeautifulSoup
 import os
@@ -8,8 +13,8 @@ django.setup()
 from community.models import Community
 
 
-def parse_community():
-    req = requests.get('http://www.fmkorea.com/index.php?mid=best&page=30')
+def parse_community(n):
+    req = requests.get('http://www.fmkorea.com/index.php?mid=best&page='+str(n))
     html = req.text
     soup = BeautifulSoup(html, 'html.parser')
     
@@ -18,9 +23,12 @@ def parse_community():
         'ul > li > div.li > h3 > a'
     )
     
-    cName = "FmKorea"
-    tName = "title"
-    conType = "type"
+    cName = "fmkorea"
+    
+    tName = soup.select(
+        'ul > li > div.li > div > span.category'
+    )
+    conType = "title"
     
     
     date = soup.select(
@@ -36,8 +44,8 @@ def parse_community():
         contentInput = re.sub('\s+','', contentInput)
         data2 = []
         data2.append(cName)
+        data2.append(tName[index].text)
         data2.append(conType)
-        data2.append("content")
         data2.append(contentInput)
         data2.append(dateInput)
         # data[index][0] = cName
@@ -57,14 +65,15 @@ def parse_community():
 
 
 if __name__ == '__main__':
-    for n in range(4,5):        
-        blog_data_dict = parse_community()
+    # 4983
+    for n in range(18,4983):
+        blog_data_dict = parse_community(n)
         for t in blog_data_dict:
-            print(t[0])
-            print(t[1])
-            print(t[2])
-            print(t[3])
-            print(t[4])
+            # print(t[0])
+            # print(t[1])
+            # print(t[2])
+            # print(t[3])
+            # print(t[4])
             new_community = Community()
             new_community.cName=t[0]
             new_community.tName=t[1]
